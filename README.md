@@ -10,10 +10,10 @@
 
 | 服务名称             | 配置文件                       | 端口    | 说明    |
 |------------------|----------------------------|-------|-------|
-| user-service     | `user-service-dev.yml`     | 15001 | 用户服务  |
-| business-service | `business-service-dev.yml` | 15002 | 商户服务  |
-| cart-service     | `cart-service-dev.yml`     | 15003 | 购物车服务 |
-| order-service    | `order-service-dev.yml`    | 15004 | 订单服务  |
+| business-service | `service-business-dev.yml` | 15001 | 商户服务  |
+| cart-service     | `service-cart-dev.yml`     | 15002 | 购物车服务 |
+| order-service    | `service-order-dev.yml`    | 15003 | 订单服务  |
+| user-service     | `service-user-dev.yml`     | 15004 | 用户服务  |
 
 ## 通用配置说明
 
@@ -30,6 +30,7 @@
 ### JPA/Hibernate配置
 - DDL自动更新: `update`
 - SQL方言: `MySQLDialect`
+- 物理命名策略: `PhysicalNamingStrategyStandardImpl`
 
 ### Knife4j (Swagger) 配置
 - 启用状态: 开启
@@ -42,7 +43,7 @@
 
 当前配置文件为 **开发环境（dev）** 配置，文件命名规则为：
 ```
-{服务名}-dev.yml
+service-{服务名}-dev.yml
 ```
 
 ## 使用方式
