@@ -31,4 +31,4 @@ knife4j:
     password: 123456
 
 custom:
-  message: cart-service-config-refresh-test
+  message: order-service-config-refresh-test
