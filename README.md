@@ -1,59 +1,84 @@
 # Elm SpringCloud Config
 
-本仓库是饿了么（Elm）Spring Cloud微服务架构的**配置中心仓库**，用于集中管理各微服务的配置文件。
+本仓库是饿了么（Elm）Spring Cloud 微服务架构的**远程配置中心仓库**，用于集中管理各微服务的开发环境配置。
 
-## 适配后端项目
+适配后端项目：[Elm_SpringCloud](https://github.com/LazyOIGG/Elm_SpringCloud)
 
-本配置仓库适配后端项目：[Elm_SpringCloud]
+## 配置文件列表
 
-## 微服务列表
+| 配置文件                       | 对应服务集群               | 说明    |
+|---------------------------|----------------------|-------|
+| `service-business-dev.yml` | Business (11000-11002) | 商家服务  |
+| `service-cart-dev.yml`     | Cart (12000-12002)     | 购物车服务 |
+| `service-order-dev.yml`    | Order (13000-13002)    | 订单服务  |
+| `service-user-dev.yml`     | User (14000-14002)     | 用户服务  |
 
-| 服务名称             | 配置文件                       | 端口    | 说明    |
-|------------------|----------------------------|-------|-------|
-| business-service | `service-business-dev.yml` | 15001 | 商户服务  |
-| cart-service     | `service-cart-dev.yml`     | 15002 | 购物车服务 |
-| order-service    | `service-order-dev.yml`    | 15003 | 订单服务  |
-| user-service     | `service-user-dev.yml`     | 15004 | 用户服务  |
+## 配置说明
 
-## 通用配置说明
+### 端口配置
 
-所有微服务共享以下基础配置：
+端口不在远程配置中定义，由各实例的本地 `bootstrap.yml` 指定，避免集群实例端口冲突：
+
+| 服务      | 实例1  | 实例2  | 实例3  |
+|---------|------|------|------|
+| Business | 11000 | 11001 | 11002 |
+| Cart     | 12000 | 12001 | 12002 |
+| Order    | 13000 | 13001 | 13002 |
+| User     | 14000 | 14001 | 14002 |
 
 ### 数据库配置
-- **数据库类型**: MySQL
-- **数据库名称**: elm
-- **连接地址**: `jdbc:mysql://localhost:3306/elm`
-- **连接池**: HikariCP
-  - 最大连接数: 30
-  - 最小空闲连接: 5
 
-### JPA/Hibernate配置
-- DDL自动更新: `update`
-- SQL方言: `MySQLDialect`
-- 物理命名策略: `PhysicalNamingStrategyStandardImpl`
+- **数据库类型**：MySQL
+- **数据库名称**：`elm`
+- **连接地址**：`jdbc:mysql://localhost:3306/elm`
+- **连接池**：HikariCP（最大连接数 30，最小空闲 5）
 
-### Knife4j (Swagger) 配置
-- 启用状态: 开启
-- 语言: 简体中文
-- 认证:
-  - 用户名: `admin`
-  - 密码: `123456`
+### JPA 配置
+
+- DDL 策略：`validate`（启动时校验表结构）
+- SQL 方言：`MySQLDialect`
+- 命名策略：`PhysicalNamingStrategyStandardImpl`
+
+### Feign 与 LoadBalancer 配置
+
+```yaml
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 3000   # 连接超时 3 秒
+            readTimeout: 5000      # 读取超时 5 秒
+    loadbalancer:
+      health-check:
+        path: /actuator/health     # 健康检查路径
+        interval: 10s              # 检查间隔
+      cache:
+        ttl: 30s                   # 服务列表缓存时间
+```
+
+### Knife4j 配置
+
+- 启用状态：开启
+- 语言：简体中文
+- Basic 认证：用户名 `admin`，密码 `123456`
 
 ## 环境说明
 
-当前配置文件为 **开发环境（dev）** 配置，文件命名规则为：
+当前为 **开发环境（dev）** 配置，文件命名规则：
+
 ```
 service-{服务名}-dev.yml
 ```
 
 ## 使用方式
 
-1. 确保已安装并启动 Spring Cloud Config Server
-2. 将本仓库配置为Config Server的Git远程仓库
-3. 各微服务通过Config Server拉取配置
+1. 配置中心（Config Server）从本 Git 仓库读取配置
+2. 各微服务启动时通过 Config Server 拉取对应配置
+3. 通过 Spring Cloud Bus（RabbitMQ）实现配置动态刷新
 
 ## 注意事项
 
-⚠️ **安全提醒**: 配置文件中包含数据库密码等敏感信息，生产环境请：
-- 使用环境变量或配置中心加密功能
-- 不要将生产配置提交到公开仓库
+- 配置文件中包含数据库密码等敏感信息，**不要将本仓库设为公开**
+- 生产环境请使用环境变量或配置中心加密功能管理敏感信息
