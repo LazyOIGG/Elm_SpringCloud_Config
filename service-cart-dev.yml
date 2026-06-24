@@ -16,21 +16,6 @@ spring:
         path:
           default: /actuator/health
         interval: 10s
-
-# Resilience4j 熔断器配置
-resilience4j:
-  circuitbreaker:
-    configs:
-      default:
-        sliding-window-size: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 5s
-        permitted-number-of-calls-in-half-open-state: 3
-        automatic-transition-from-open-to-half-open-enabled: true
-  timelimiter:
-    configs:
-      default:
-        timeout-duration: 3s
   datasource:
     url: jdbc:mysql://localhost:3306/elm?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
     username: root
@@ -49,6 +34,21 @@ resilience4j:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+
+# Resilience4j 熔断器配置
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
 
 knife4j:
   enable: true
