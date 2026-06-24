@@ -35,7 +35,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
-# Resilience4j 熔断器配置
+# Resilience4j 容错配置
 resilience4j:
   circuitbreaker:
     configs:
@@ -45,6 +45,23 @@ resilience4j:
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 5
         automatic-transition-from-open-to-half-open-enabled: true
+  ratelimiter:
+    configs:
+      default:
+        limit-for-period: 5
+        limit-refresh-period: 2s
+        timeout-duration: 0s
+    instances:
+      rateLimiterA:
+        base-config: default
+  bulkhead:
+    configs:
+      default:
+        max-concurrent-calls: 10
+        max-wait-duration: 0s
+    instances:
+      bulkheadA:
+        base-config: default
   timelimiter:
     configs:
       default:
