@@ -48,7 +48,7 @@ resilience4j:
   ratelimiter:
     configs:
       default:
-        limit-for-period: 5
+        limit-for-period: 20
         limit-refresh-period: 2s
         timeout-duration: 0s
     instances:
@@ -57,7 +57,7 @@ resilience4j:
   bulkhead:
     configs:
       default:
-        max-concurrent-calls: 10
+        max-concurrent-calls: 20
         max-wait-duration: 0s
     instances:
       bulkheadA:
