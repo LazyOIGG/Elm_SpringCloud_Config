@@ -45,6 +45,8 @@
 spring:
   cloud:
     openfeign:
+      circuitbreaker:
+        enabled: true
       client:
         config:
           default:
@@ -52,11 +54,29 @@ spring:
             readTimeout: 5000      # 读取超时 5 秒
     loadbalancer:
       health-check:
-        path: /actuator/health     # 健康检查路径
+        path:
+          default: /actuator/health # 健康检查路径
         interval: 10s              # 检查间隔
       cache:
+        enabled: true
         ttl: 30s                   # 服务列表缓存时间
 ```
+
+`service-cart-dev.yml` 和 `service-order-dev.yml` 还包含自定义负载均衡策略配置：
+
+```yaml
+elm:
+  loadbalancer:
+    strategy: three-times          # 可选：three-times、random
+```
+
+### Resilience4j 容错配置
+
+各服务配置了 CircuitBreaker、RateLimiter、Bulkhead 和 TimeLimiter。当前开发环境中，商家服务限流阈值为 100 次 / 2 秒，用户、购物车、订单服务限流阈值为 20 次 / 2 秒；隔板最大并发为 20，等待时间为 0 秒。
+
+### 动态配置测试项
+
+各配置文件包含 `custom.message`，业务服务通过 `ConfigMessageProvider` 读取该值，可配合 `/configMessage` 接口和 `busrefresh` 验证 Spring Cloud Bus 动态刷新。
 
 ### Knife4j 配置
 
@@ -78,7 +98,13 @@ service-{服务名}-dev.yml
 2. 各微服务启动时通过 Config Server 拉取对应配置
 3. 通过 Spring Cloud Bus（RabbitMQ）实现配置动态刷新
 
+刷新示例：
+
+```bash
+curl -X POST http://localhost:20000/actuator/busrefresh
+```
+
 ## 注意事项
 
-- 配置文件中包含数据库密码等敏感信息，**不要将本仓库设为公开**
+- 配置文件中包含数据库密码等本地开发凭据，请按本机 MySQL 配置修改，**不要将真实生产凭据提交到公开仓库**
 - 生产环境请使用环境变量或配置中心加密功能管理敏感信息
