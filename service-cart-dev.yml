@@ -78,3 +78,8 @@ knife4j:
 
 custom:
   message: cart-service-config-refresh-test
+
+elm:
+  loadbalancer:
+    # 可选值: three-times, random
+    strategy: three-times
